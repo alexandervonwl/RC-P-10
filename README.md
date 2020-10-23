@@ -1,2 +1,3 @@
 # RC-P-10
-Aplicație de tip browser FS (Server CoAP)
+This project tracks the progress of Team 10. Alexandru Lupusoru & Alexandru Mirt.
+browser FS (Server CoAP)
