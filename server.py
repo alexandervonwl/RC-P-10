@@ -1,23 +1,32 @@
-import FileSys
 import socket
+import time
+import pickle
+import CoAP
+from CoAPMessage import CoAPMessage
 
-class Server:
-    def __init__(self):
-        # create an INET, STREAMing socket
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # bind the socket to a public host,
-        # and a well-known port
-        serversocket.bind((socket.gethostname(), 1234))
-        # become a server socket
-        serversocket.listen(5)
+
+
+class Server():
+    def run(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), 1234))
+        s.listen(5)
 
         while True:
-            # accept connections from outside
-            (clientsocket, address) = serversocket.accept()
-            # now do something with the clientsocket
-            clientsocket.send(bytes("Hello but in coap protocol", "utf-8"))
+            # now our endpoint knows about the OTHER endpoint.
 
-            command = clientsocket.recv(16)
-            clientsocket.close()
+            clientsocket, address = s.accept()
+            print(f"Connection from {address} has been established.")
+            clientsocket.send(b"Salut!")
+            msg = clientsocket.recv(4096)
+            if not msg: break
+            print(CoAPMessage.from_bytes(msg))
+
+
+            '''d = {1:"hi", 2: "there"}
+            msg = pickle.dumps(d)
+            msg = bytes(f"{len(msg):<{HEADERSIZE}}", 'utf-8')+msg
+            print(msg)
+            clientsocket.send(msg)'''
 
 

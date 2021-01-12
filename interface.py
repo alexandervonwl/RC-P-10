@@ -1,7 +1,14 @@
 from tkinter import *
+from server import Server
 
 
 class interface():
+    def start_server(self):
+        Server().run()
+
+    def stop_server(self):
+        pass
+
     def create(self):
         root = Tk()
 
@@ -20,8 +27,13 @@ class interface():
         labelLogged = Label(frameLogged, text='Conexiuni:', bg="black", fg="white")
         labelReceived = Label(frameReceived, text='Mesaje:', bg="black", fg="white")
 
-        labelLogged.grid(row=0, column=0)
+        startButton = Button(frameLogged, text='Start Server', bg="green", command=self.start_server)
+        stopButton = Button(frameLogged, text='Stop Server', bg="red", command=self.stop_server)
+
+        labelLogged.grid(row=1, column=0)
         labelReceived.grid(row=0, column=0)
+        startButton.grid(row=0, column="0")
+        stopButton.grid(row=0, column=1)
 
         frameLogged.grid(row=0, column=0, sticky="nsew")
         frameReceived.grid(row=1, column=0, sticky="nsew")
