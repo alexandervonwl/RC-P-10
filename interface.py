@@ -1,13 +1,21 @@
 from tkinter import *
 from server import Server
+import threading
 
 
 class interface():
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.server = Server()
+
+    def on_connect(self):
+        self.server_thread = threading.Thread(target=lambda: self.start_server()).start()
+
     def start_server(self):
-        Server().run()
+        self.server.run()
 
     def stop_server(self):
-        pass
+        self.server.is_running = FALSE
 
     def create(self):
         root = Tk()
@@ -24,14 +32,16 @@ class interface():
         #frameLogged.pack(fill=tk.BOTH, expand=1)  # Expand the frame to fill the root window
 
         #labeluri introduse in frameurile mai sus mentionate
-        labelLogged = Label(frameLogged, text='Conexiuni:', bg="black", fg="white")
-        labelReceived = Label(frameReceived, text='Mesaje:', bg="black", fg="white")
+        labelTitluLogged = Label(frameLogged, text='Conexiuni:', bg="black", fg="white")
+        labelTitluReceived = Label(frameReceived, text='Mesaje:', bg="black", fg="white")
+        labelConnection = Label(frameLogged, text = self.server.label, bg="black", fg="white")
 
-        startButton = Button(frameLogged, text='Start Server', bg="green", command=self.start_server)
+        startButton = Button(frameLogged, text='Start Server', bg="green", command=self.on_connect)
         stopButton = Button(frameLogged, text='Stop Server', bg="red", command=self.stop_server)
 
-        labelLogged.grid(row=1, column=0)
-        labelReceived.grid(row=0, column=0)
+        labelTitluLogged.grid(row=1, column=0)
+        labelTitluReceived.grid(row=0, column=0)
+        labelConnection.grid(row=2, column=0)
         startButton.grid(row=0, column="0")
         stopButton.grid(row=0, column=1)
 
@@ -42,6 +52,7 @@ class interface():
         root.grid_rowconfigure(1, weight=3, uniform="group1")
         root.grid_columnconfigure(0, weight=1)
 
+        print(self.server.label)
         return root
         #O punem pe ecran
         #myLabel.pack()
