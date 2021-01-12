@@ -1,6 +1,13 @@
 import FileSys
+from tkinter import *
+from interface import *
+from server import *
 
-def __main__():
+
+if __name__ == '__main__':
+
+    app = interface().create()
+    #server = Server()
     direct_1 = FileSys.Directory("Documente")
     file_1 = FileSys.File("Fis_1", "asta e fis_1")
     file_2 = FileSys.File("Fis_2", "asta e fis_2")
@@ -10,4 +17,9 @@ def __main__():
 
     print(direct_1)
 
-__main__()
+
+    app.mainloop()
+
+
+
+

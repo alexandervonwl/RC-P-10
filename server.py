@@ -15,7 +15,7 @@ class Server:
             # accept connections from outside
             (clientsocket, address) = serversocket.accept()
             # now do something with the clientsocket
-            clientsocket.send(bytes("Hello but in coap protocol"))
+            clientsocket.send(bytes("Hello but in coap protocol", "utf-8"))
 
             command = clientsocket.recv(16)
             clientsocket.close()
