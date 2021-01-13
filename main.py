@@ -1,7 +1,7 @@
 import FileSys
 from tkinter import *
 from interface import *
-from server import *
+#from server import *
 
 
 if __name__ == '__main__':
