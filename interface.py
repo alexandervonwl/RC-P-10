@@ -18,18 +18,22 @@ class interface:
         self.frameLogged.pack_propagate(0)  # Don't allow the widgets inside to determine the frame's width / height
         self.frameReceived.pack_propagate(0)  # Don't allow the widgets inside to determine the frame's width / height
         # frameLogged.pack(fill=tk.BOTH, expand=1)  # Expand the frame to fill the root window
-        # labeluri introduse in frameurile mai sus mentionate
-        self.labelTitluLogged = Label(self.frameLogged, text='Conexiuni:', bg="black", fg="white")
 
+        # cream butoanele/labelurile pe care le introducem in frameurile mai sus mentionate
+        self.labelTitluLogged = Label(self.frameLogged, text='Conexiuni:', bg="black", fg="white")
         self.labelTitluReceived = Label(self.frameReceived, text='Mesaje:', bg="black", fg="white")
         self.labelConnection = Label(self.frameLogged, text="", bg="black", fg="white")
+        self.labelMesaj = Label(self.frameReceived, text="", bg="black", fg="white")
 
+        # cream butoanele pe care le introducem in frameul Logged
         self.startButton = Button(self.frameLogged, text='Start Server', bg="green", command=self.on_connect)
         self.stopButton = Button(self.frameLogged, text='Stop Server', bg="red", command=self.stop_server)
 
+        # adaugam label/butoane la frame
         self.labelTitluLogged.grid(row=1, column=0)
         self.labelTitluReceived.grid(row=0, column=0)
         self.labelConnection.grid(row=2, column=0)
+        self.labelMesaj.grid(row=2, column=0)
         self.startButton.grid(row=0, column="0")
         self.stopButton.grid(row=0, column=1)
 
@@ -58,6 +62,3 @@ class interface:
         # O punem pe ecran
         # myLabel.pack()
 
-    '''def add_label(self, connectionText):
-        self.labelConnection = Label(self.frameLogged, text=connectionText, bg="black", fg="white")
-        self.labelConnection.grid(row=2, column=0)'''
