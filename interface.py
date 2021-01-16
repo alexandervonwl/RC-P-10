@@ -5,6 +5,7 @@ import threading
 from queue import Queue
 
 
+
 class interface:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,7 +24,13 @@ class interface:
         self.labelTitluLogged = Label(self.frameLogged, text='Conexiuni:', bg="black", fg="white")
         self.labelTitluReceived = Label(self.frameReceived, text='Mesaje:', bg="black", fg="white")
         self.labelConnection = Label(self.frameLogged, text="", bg="black", fg="white")
-        self.labelMesaj = Label(self.frameReceived, text="", bg="black", fg="white")
+        self.labelMesaj = []
+        self.indexMesaj = 0
+        self.labelMesaj.append(Label(self.frameReceived, text="", bg="black", fg="white"))
+        self.labelMesaj.append(Label(self.frameReceived, text="", bg="black", fg="white"))
+        self.labelMesaj.append(Label(self.frameReceived, text="", bg="black", fg="white"))
+        #self.labelMesaj1 = Label(self.frameReceived, text="", bg="black", fg="white")
+        #self.labelMesaj2 = Label(self.frameReceived, text="", bg="black", fg="white")
 
         # cream butoanele pe care le introducem in frameul Logged
         self.startButton = Button(self.frameLogged, text='Start Server', bg="green", command=self.on_connect)
@@ -33,7 +40,8 @@ class interface:
         self.labelTitluLogged.grid(row=1, column=0)
         self.labelTitluReceived.grid(row=0, column=0)
         self.labelConnection.grid(row=2, column=0)
-        self.labelMesaj.grid(row=2, column=0)
+        for i in range(len(self.labelMesaj)):
+            self.labelMesaj[i].grid(row=i+2, column=0)
         self.startButton.grid(row=0, column="0")
         self.stopButton.grid(row=0, column=1)
 
@@ -61,4 +69,3 @@ class interface:
 
         # O punem pe ecran
         # myLabel.pack()
-
