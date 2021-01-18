@@ -1,6 +1,6 @@
 from tkinter import *
 import tkinter as tk
-from server import Server
+from server2 import Server
 import threading
 from queue import Queue
 
