@@ -25,9 +25,8 @@ class interface:
         self.label_connection = Label(self.frame_logged, text="", bg="black", fg="white")
         self.label_message = []
         self.index_message = 0
-        self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white"))
-        self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white"))
-        self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white"))
+        for i in range(20):
+            self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white"))
         # self.labelMesaj1 = Label(self.frameReceived, text="", bg="black", fg="white")
         # self.labelMesaj2 = Label(self.frameReceived, text="", bg="black", fg="white")
 

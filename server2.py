@@ -62,7 +62,7 @@ class Server:
             print("Mesaj primit: " + str(message_rcv))
             # newthread = ClientThread(clientAddress, message, self.root, self.UDPServerSocket)
             # newthread.start()
-            self.root.label_connection.config(text=f"clientul {str(client_address)} a trimis un mesaj")
+            self.root.label_connection.config(text=f"clientul {str(client_address)} a trimis mesajul: {str(message_rcv)}")
             coap_message_rcv = CoAPMessage.from_bytes(message_rcv)
             dp.payload = coap_message_rcv.payload
             message_send_payload, message_send_response_code, message_send_class = dp.parsePayload()
@@ -81,6 +81,7 @@ class Server:
             coap_message_send = CoAPMessage(message_send_payload, message_send_type, message_send_class,
                                             message_send_response_code, message_send_id, message_send_hv,
                                             message_send_tl, message_send_token)
+            print("Asta este payloadul curent: " + str(message_send_payload))
             bytes_to_send = CoAP.wrap(coap_message_send)
             print("Mesaj trimis de server: " + str(coap_message_send))
             self.UDPServerSocket.sendto(bytes_to_send, ("127.0.0.1", 4999))
@@ -89,5 +90,5 @@ class Server:
             while not self.client_messageQ.empty():
                 self.root.label_message[self.root.index_message].config(text=f"mesaj: " + self.client_messageQ.get())
                 self.root.index_message = self.root.index_message + 1
-                print(self.client_messageQ)
+                # print(self.client_messageQ)
 

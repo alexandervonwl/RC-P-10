@@ -19,7 +19,8 @@ class Directory(FSComponent):
         result = f"[DIRECTORY]: {self.name}"
         if len(self.children) > 0:
             result += "\n"
-            for child in self.children:
+            result += '\t'
+            for child in self.children:                 # root/abc/file
                 if child.type == '[FILE]':
                     result += f"L{child.type}{child.name} {child.content} \n"
                 elif child.type == '[DIRECTORY]':
@@ -27,10 +28,14 @@ class Directory(FSComponent):
         return result
 
     def create_encoding(self):
-        result = 'd/' + self.name + '/' + '\x00'
+        result = ''
+        while self.parent is not None:
+            self.parent.create_encoding()
+        result += 'd/' + self.name + '\x00'
         if len(self.children) > 0:
             for child in self.children:
                 result += child.create_encoding()
+        print("Rezultat de transmis este asta: " + result)
         return result
 
 
@@ -47,11 +52,11 @@ class File(FSComponent):
         return f"[FILE]: {self.name} {self.content}"
 
     def create_encoding(self):
-        result = 'f' + self.name + '\x00'
+        result = 'f' + self.name
         return result
 
     def view_content(self):
-        result = 'f' + self.content
+        result = self.content + '\x00'
         return result
 
     def save_into_file(self, content):
@@ -66,24 +71,24 @@ class DecodePayload:
         self.name = ""
 
     def parsePayload(self):
-        self.command = self.payload[0:4]
-        self.name = self.payload[4:]
+        self.command = self.payload[0]
+        self.name = self.payload[1:]
 
         return self.execute(self.command, self.name)
         # return '', 400, 4
 
     def execute(self, command, name):
-        if command == '\\x01':
+        if command == '\x01':
             return self.command_back(name)
-        elif command == '\\x02':
+        elif command == '\x02':
             return self.open(name)
-        elif command == '\\x03':
+        elif command == '\x03':
             return self.save(name)
-        elif command == '\\x04':
+        elif command == '\x04':
             return self.new_file(name)
-        elif command == "\\x05":
+        elif command == '\x05':
             return self.new_directory(name)
-        elif command == '\\x06':
+        elif command == '\x06':
             return self.delete(name)
         else:
             return '', 400, 4
@@ -94,19 +99,24 @@ class DecodePayload:
         else:
             break_path = self.current_obj.current_path.split("/")
             self.current_obj.current_path = break_path[0]
-            for i in range(1, len(break_path)):
+            for i in range(1, len(break_path) - 2):
                 self.current_obj.current_path += '/' + break_path[i]
+            self.current_obj = self.current_obj.parent
             return self.current_obj.parent.create_encoding(), 204, 2
 
     def open(self, name):
         for child in self.current_obj.children:
             if child.name == name and child.type == '[DIRECTORY]':
+                parent_encoding = self.current_obj.create_encoding()
                 self.current_obj.current_path += '/' + child.name
-                return child.create_encoding, 203, 2
+                self.current_obj = child
+                return parent_encoding, 203, 2
 
             elif child.name == name and child.type == '[FILE]':
+                parent_encoding = self.current_obj.create_encoding()
                 self.current_obj.current_path += '/' + child.name
-                return child.view_content, 203, 2
+                self.current_obj = child
+                return parent_encoding + child.view_content(), 203, 2
 
         return '', 404, 4
 

@@ -24,11 +24,11 @@ class CoAPMessage:
 [TOKEN]:\t{hex(self.token) if self.token_length else ''}
 [PAYLOAD]:\t{self.payload}\n"""
 
-    def logging_format(self) -> str:
+    '''def logging_format(self) -> str:
         data_bytes = CoAP.build_header(self)
         ans = data_bytes.hex(sep=' ', bytes_per_sep=1)
         ans += f' ff {bytes(self.payload, encoding="utf-8")}'
-        return ans
+        return ans'''
 
     @classmethod
     def from_bytes(cls, data_bytes: bytes) -> 'CoAPMessage':
