@@ -55,18 +55,19 @@ class Server:
 
     def run(self):
         self.is_running = True
-        dp = DecodePayload(FSComponent('root', None), '')
+        rd = Directory('root', None)
+        dp = DecodePayload(rd, '')
         while self.is_running:
             message_rcv, client_address = self.UDPServerSocket.recvfrom(self.buffer_size)
-            print(message_rcv)
+            print("Mesaj primit: " + str(message_rcv))
             # newthread = ClientThread(clientAddress, message, self.root, self.UDPServerSocket)
             # newthread.start()
             self.root.label_connection.config(text=f"clientul {str(client_address)} a trimis un mesaj")
             coap_message_rcv = CoAPMessage.from_bytes(message_rcv)
             dp.payload = coap_message_rcv.payload
             message_send_payload, message_send_response_code, message_send_class = dp.parsePayload()
-            message_send_class = CoAP.CLASS_SUCCESS
-            message_send_code = 1
+            message_send_hv = coap_message_rcv.header_version
+            message_send_tl = coap_message_rcv.token_length
             message_send_token = coap_message_rcv.token
             if coap_message_rcv.msg_type == CoAP.TYPE_CONF:
                 # coap_message_rcv.payload = 'd/mnt/\x00fBD Proiect\x00fRC\x00dporn\x00dsecrets\x00'
@@ -78,12 +79,15 @@ class Server:
 
             self.message_number += 1
             coap_message_send = CoAPMessage(message_send_payload, message_send_type, message_send_class,
-                                            message_send_response_code, message_send_id, message_send_token)
+                                            message_send_response_code, message_send_id, message_send_hv,
+                                            message_send_tl, message_send_token)
             bytes_to_send = CoAP.wrap(coap_message_send)
-            print(coap_message_send)
-            self.UDPServerSocket.sendto(bytes_to_send, client_address)
+            print("Mesaj trimis de server: " + str(coap_message_send))
+            self.UDPServerSocket.sendto(bytes_to_send, ("127.0.0.1", 4999))
             self.client_messageQ.put(coap_message_rcv.payload)
+            print(rd)
             while not self.client_messageQ.empty():
                 self.root.label_message[self.root.index_message].config(text=f"mesaj: " + self.client_messageQ.get())
                 self.root.index_message = self.root.index_message + 1
                 print(self.client_messageQ)
+

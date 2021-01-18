@@ -1,29 +1,29 @@
-from CoAPMessage import *
-
 class FSComponent:
     def __init__(self, name, parent, current_path='root'):
         self.name = name
         self.parent = parent
         self.current_path = current_path
+        self.children = set()
+        self.type = ''
 
 
 class Directory(FSComponent):
     def __init__(self, name, parent):
         super().__init__(name, parent)
-        self.children = set()
+        self.type = '[DIRECTORY]'
 
     def add_child(self, child: FSComponent):
         self.children.add(child)
-
-    def get_type(self):
-        return "[DIRECTORY]"
 
     def __str__(self):
         result = f"[DIRECTORY]: {self.name}"
         if len(self.children) > 0:
             result += "\n"
             for child in self.children:
-                result += f"L{child.get_type()}{child.name} {child.content} \n"
+                if child.type == '[FILE]':
+                    result += f"L{child.type}{child.name} {child.content} \n"
+                elif child.type == '[DIRECTORY]':
+                    result += f"L{child} \n"
         return result
 
     def create_encoding(self):
@@ -38,9 +38,10 @@ class File(FSComponent):
     def __init__(self, name, parent, content=""):
         super().__init__(name, parent)
         self.content = content
+        self.type = '[FILE]'
 
-    def get_type(self):
-        return "[FILE]"
+    '''def get_type(self):
+        return "[FILE]"'''
 
     def __str__(self):
         return f"[FILE]: {self.name} {self.content}"
@@ -68,17 +69,24 @@ class DecodePayload:
         self.command = self.payload[0:4]
         self.name = self.payload[4:]
 
-        self.execute(self.command, self.name)
+        return self.execute(self.command, self.name)
+        # return '', 400, 4
 
     def execute(self, command, name):
-        return {
-            '\x01': self.command_back(name),
-            '\x02': self.open(name),
-            '\x03': self.save(name),
-            '\x04': self.new_file(name),
-            '\x05': self.new_directory(name),
-            '\x06': self.delete(name),
-        }[command]
+        if command == '\\x01':
+            return self.command_back(name)
+        elif command == '\\x02':
+            return self.open(name)
+        elif command == '\\x03':
+            return self.save(name)
+        elif command == '\\x04':
+            return self.new_file(name)
+        elif command == "\\x05":
+            return self.new_directory(name)
+        elif command == '\\x06':
+            return self.delete(name)
+        else:
+            return '', 400, 4
 
     def command_back(self, name):
         if self.current_obj.current_path == 'root':
@@ -92,11 +100,11 @@ class DecodePayload:
 
     def open(self, name):
         for child in self.current_obj.children:
-            if child.name == name and child.get_type == '[DIRECTORY]':
+            if child.name == name and child.type == '[DIRECTORY]':
                 self.current_obj.current_path += '/' + child.name
                 return child.create_encoding, 203, 2
 
-            elif child.name == name and child.get_type == '[FILE]':
+            elif child.name == name and child.type == '[FILE]':
                 self.current_obj.current_path += '/' + child.name
                 return child.view_content, 203, 2
 
@@ -105,7 +113,7 @@ class DecodePayload:
     def save(self, name):
         name_content = name.split("\x00")
         # self.save_into_file = name_content[1]
-        if self.current_obj.get_type() == "[FILE]":
+        if self.current_obj.type == "[FILE]":
             if name_content[0] == name:
                 self.current_obj.save_into_file(name_content[1])
                 return '', 204, 2
@@ -113,27 +121,27 @@ class DecodePayload:
         return '', 405, 4
 
     def new_file(self, name):
-        if self.current_obj.get_type() == "[DIRECTORY]":
-            self.current_obj.add_child(File(name, self))
+        if self.current_obj.type == "[DIRECTORY]":
+            self.current_obj.add_child(File(name, self.current_obj))
             return '', 201, 2
         return '', 405, 4
 
     def new_directory(self, name):
-        if self.current_obj.get_type() == "[DIRECTORY]":
-            self.current_obj.add_child(Directory(name, self))
+        if self.current_obj.type == "[DIRECTORY]":
+            self.current_obj.add_child(Directory(name, self.current_obj))
             return '', 201, 2
         return '', 405, 4
 
     def delete(self, name):
         for child in self.current_obj.children:
             if child.name == name:
-                if child.get_type() == "[DIRECTORY]":
+                if child.type == "[DIRECTORY]":
                     if len(child.children) == 0:
                         del child
                     else:
                         for grandchild in child.children:
                             grandchild.delete(grandchild.name)
-                elif child.get_type() == "[FILE]":
+                elif child.type == "[FILE]":
                     del child
                 return '', 202, 2
         return '', 404, 4
