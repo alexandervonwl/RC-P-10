@@ -15,7 +15,6 @@ from FileSys import *
         self.root = root
         self.message_number = 0
         print("New message received from: ", clientAddress)
-
     def run(self):
         self.root.labelConnection.config(text=f"clientul {str(self.address)} a trimis un mesaj")
         while True:
@@ -27,10 +26,8 @@ from FileSys import *
                 coap_message.msg_type = CoAP.TYPE_ACK
                 coap_message.msg_class = CoAP.CLASS_SUCCESS
                 coap_message.msg_code = 1
-
                 bytes_to_send = CoAP.wrap(coap_message)
                 self.UDPServerSocket.sendto(bytes_to_send, self.address)
-
             self.client_messageQ.put(CoAPMessage.from_bytes(self.message).payload)
             while not self.client_messageQ.empty():
                 self.root.labelMesaj[self.root.indexMesaj].config(text=f"mesaj: " + self.client_messageQ.get())
@@ -45,6 +42,7 @@ class Server:
         # self.coada_clienti = Queue()
         self.is_running = False
         self.root = root
+        self.command = ''
         self.buffer_size = 4096
         self.client_connection = ""
         self.message_number = 0
@@ -55,7 +53,7 @@ class Server:
 
     def run(self):
         self.is_running = True
-        rd = Directory('root', None)
+        rd = Directory('root', None, 0)
         dp = DecodePayload(rd, '')
         while self.is_running:
             message_rcv, client_address = self.UDPServerSocket.recvfrom(self.buffer_size)
@@ -81,14 +79,32 @@ class Server:
             coap_message_send = CoAPMessage(message_send_payload, message_send_type, message_send_class,
                                             message_send_response_code, message_send_id, message_send_hv,
                                             message_send_tl, message_send_token)
-            print("Asta este payloadul curent: " + str(message_send_payload))
             bytes_to_send = CoAP.wrap(coap_message_send)
-            print("Mesaj trimis de server: " + str(coap_message_send))
+            print("Mesaj trimis de server:\n" + str(coap_message_send))
             self.UDPServerSocket.sendto(bytes_to_send, ("127.0.0.1", 4999))
-            self.client_messageQ.put(coap_message_rcv.payload)
+
             print(rd)
+            on_what = coap_message_rcv.payload[1:]
+            if coap_message_rcv.payload[0] == '\x01':
+                coap_message_rcv.payload = 'BACK'
+            elif coap_message_rcv.payload[0] == '\x02':
+                coap_message_rcv.payload = 'OPEN'
+            elif coap_message_rcv.payload[0] == '\x03':
+                split = on_what.split("\x00")
+                on_what = split[0] + ' content: ' + split[1]
+                coap_message_rcv.payload = 'SAVE'
+            elif coap_message_rcv.payload[0] == '\x04':
+                coap_message_rcv.payload = 'NEW FILE'
+            elif coap_message_rcv.payload[0] == '\x05':
+                coap_message_rcv.payload = 'NEW DIRECTORY'
+            elif coap_message_rcv.payload[0] == '\x06':
+                coap_message_rcv.payload = 'DELETE'
+            else:
+                coap_message_rcv.payload = 'EMPTY / UNKNOWN'
+            self.client_messageQ.put(coap_message_rcv.payload + ' ' + on_what)
             while not self.client_messageQ.empty():
-                self.root.label_message[self.root.index_message].config(text=f"mesaj: " + self.client_messageQ.get())
+
+                self.root.label_message[self.root.index_message].config(text=f"MESAJ: " + self.client_messageQ.get())
                 self.root.index_message = self.root.index_message + 1
                 # print(self.client_messageQ)
 
