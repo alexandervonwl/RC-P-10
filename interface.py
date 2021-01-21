@@ -26,15 +26,15 @@ class interface:
 
         # cream butoanele/labelurile pe care le introducem in frameurile mai sus mentionate
         self.label_title_logged = Label(self.frame_logged, text='Conexiuni:', bg="black", fg="white")
-        self.label_title_received = Label(self.frame_received, text='Mesaje:', bg="black", fg="white")
+        self.label_title_received = Label(self.frame_received, text='Comenzi primite:', bg="black", fg="white")
         self.label_title_file_sys = Label(self.frame_file_sys, text='File System:', bg="black", fg="white")
 
         self.label_connection = Label(self.frame_logged, text="", bg="black", fg="white")
-        self.label_file_sys = Label(self.frame_file_sys, text="", bg="black", fg="white")
+        self.label_file_sys = Label(self.frame_file_sys, text="", bg="black", fg="white", justify=LEFT, padx=100)
         self.label_message = []
         self.index_message = 0
         for i in range(30):
-            self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white"))
+            self.label_message.append(Label(self.frame_received, text="", bg="black", fg="white", justify=LEFT))
 
         # cream butoanele pe care le introducem in frameul Logged
         self.startButton = Button(self.frame_logged, text='Start Server', bg="green", command=self.on_connect)
@@ -43,11 +43,18 @@ class interface:
         # adaugam label/butoane la frame
         self.label_title_logged.grid(row=1, column=0, sticky="nsew")
         self.label_title_received.grid(row=1, column=0, sticky="nsew")
+
+        # connection
         self.label_connection.grid(row=2, column=2, sticky="nsew")
+
+        # File System
         self.label_title_file_sys.grid(row=1, column=0, sticky="nsew")
-        self.label_file_sys.grid(row=2, column=2, sticky="nsew")
+        self.label_file_sys.grid(row=2, column=1, sticky="e")
+
+        # Message
         for i in range(len(self.label_message)):
             self.label_message[i].grid(row=i + 2, column=2, sticky="nsew")
+
         self.startButton.grid(row=0, column=0, sticky="nsew")
         self.stopButton.grid(row=0, column=1, sticky="nsew")
 
@@ -56,6 +63,7 @@ class interface:
         self.frame_received.grid(row=1, column=0, sticky="nsew")
         self.frame_file_sys.grid(row=1, column=1, sticky="nsew")
 
+        # configure rows and columns
         self.root.grid_rowconfigure(0, weight=1, uniform="group1")
         self.root.grid_rowconfigure(1, weight=6, uniform="group1")
         self.root.grid_columnconfigure(0, weight=1, uniform="group1")
@@ -63,7 +71,8 @@ class interface:
         self.frame_down.grid_columnconfigure(0, weight=1, uniform="group2")
         self.frame_down.grid_columnconfigure(1, weight=1, uniform="group2")
 
-        self.frame_file_sys.grid_columnconfigure(2, weight=1, uniform="group3")
+        self.frame_file_sys.grid_columnconfigure(0, weight=1, uniform="group3")
+        self.frame_file_sys.grid_columnconfigure(1, weight=4, uniform="group3")
 
         self.server = Server(self)
 
@@ -75,7 +84,7 @@ class interface:
 
     def stop_server(self):
         self.server.is_running = FALSE
-        return 0
+        exit()
 
     def create(self):
         return self.root
