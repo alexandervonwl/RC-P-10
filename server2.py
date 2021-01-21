@@ -84,6 +84,7 @@ class Server:
             self.UDPServerSocket.sendto(bytes_to_send, ("127.0.0.1", 4999))
 
             print(rd)
+            self.root.label_file_sys.config(text=rd)
             on_what = coap_message_rcv.payload[1:]
             if coap_message_rcv.payload[0] == '\x01':
                 coap_message_rcv.payload = 'BACK'
