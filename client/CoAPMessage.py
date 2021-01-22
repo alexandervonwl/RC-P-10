@@ -2,11 +2,6 @@ from exceptions import InvalidFormat
 
 
 class CoAPMessage:
-    """
-    Encapsulates a CoAP-style message, providing an easy means of accessing all header fields.
-    Is responsible for validating messages and throws exceptions in case of incorrect formats.
-    """
-
     def __init__(self, payload: str, msg_type: int, msg_class: int, msg_code: int, msg_id: int,
                  header_version=0x1, token_length=0x0, token=0x0):
         self.payload = payload
@@ -32,11 +27,6 @@ class CoAPMessage:
 
     @classmethod
     def from_bytes(cls, data_bytes: bytes) -> 'CoAPMessage':
-        """
-        Creates a CoAPMessage from bytes encoded using the CoAP protocol.
-        This method will also check any format inconsistencies according to RFC-7252 and will throw InvalidFormat.
-        :param data_bytes: The bytes that encode the message.
-        """
         header_bytes = data_bytes[0:4]
         header_version = (0xC0 & header_bytes[0]) >> 6
         msg_type = (0x30 & header_bytes[0]) >> 4
@@ -75,11 +65,6 @@ class CoAPMessage:
 
 
 class CoAP:
-    """
-    Holds information about the Constrained Application Protocol compliant with RFC-7252.
-    Containts static methods that encode a specified CoAPMessage object.
-    """
-
     HEADER_LEN = 4
     VALID_VERSIONS = (1, )
     PAYLOAD_MARKER = b'\xFF'
@@ -136,12 +121,6 @@ class CoAP:
 
     @staticmethod
     def wrap(msg: CoAPMessage) -> bytes:
-        """
-        Takes a CoAPMessage object and converts it into bytes according to the CoAP protocol
-        :param msg: The CoAPMEssage object to be encoded.
-        :return: bytes representing the encoded message.
-        """
-
         coap_header = CoAP.build_header(msg)
         payload = b''
         if len(msg.payload):
